@@ -5,224 +5,36 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
   <title>かくてるん</title>
 </head>
 
 <body>
+  <header>KAKUTERUN</header>
   <div id="app">
-    <form @submit.prevent="handleSubmit" class="container mt-3">
-      <div v-for="field in fields" :key="field.name" class="d-flex">
-        <label :for="field.name" class="form-label">{{ field.label }}</label>
-        <span v-if="kakuteru">{{ kakuteru[field.name] }}</span>
+    <section class="discription">
+      <div>・使うお酒のアルコール度数は必須です。</div>
+      <div>・使うお酒のアルコール度数のほかに2項目の入力が必要です。</div>
+    </section>
+    <form @submit.prevent="handleSubmit">
+      <div v-for="field in fields" :key="field.name" class="form-control">
+        <label :for="field.name">{{ field.label }}<span v-if="field.required" class="required">*</span></label>
+        <span v-if="kakuteru" class="result">{{ kakuteru[field.name] }}</span>
         <input v-else v-model="formData[field.name]" :id="field.name" type="number" :disabled="isDisabled(field.name)"
-          class="form-control">{{ field.unit
-        }}
-      </div>
-      <!-- <div class="d-flex">
-        <label for="spiritsAlcoholDegree" class="form-label">使うお酒のアルコール度数</label>
-        <span v-if="kakuteru">{{ kakuteru.spiritsAlcoholDegree }}</span>
-        <input v-else v-model="formData.spiritsAlcoholDegree" id="spiritsAlcoholDegree" type="number" required
-          class="form-control">%
+          :required="field.required"><span class="unit">{{ field.unit}}</span>
       </div>
 
-      <div class="d-flex">
-        <label for="spirits" class="form-label">使うお酒</label>
-        <span v-if="kakuteru">{{ kakuteru.spirits }}</span>
-        <input v-else v-model="formData.spirits" id="spirits" type="number" :disabled="isDisabled(spirits)"
-          class="form-control">ml {{ isDisabled('spirits') }}
+      <div class="actions">
+        <button v-if="kakuteru" @click="back" type="button" class="back">もどるん</button>
+        <button v-else type="submit" class="submit" :disabled="submitDisabled()">カクテルつくるん</button>
+        <button @click="reset" type="button" class="reset">最初から</button>
       </div>
-
-      <div class="d-flex">
-        <label for="splitting" class="form-label">割り材</label>
-        <span v-if="kakuteru">{{ kakuteru.splitting }}</span>
-        <input v-else v-model="formData.splitting" id="splitting" type="number" class="form-control">ml
-      </div>
-
-      <div class="d-flex">
-        <label for="total" class="form-label">総量</label>
-        <span v-if="kakuteru">{{ kakuteru.total }}</span>
-        <input v-else v-model="formData.total" id="total" type="number"
-          :disabled="formData.spirits !='' && formData.splitting !=''" class="form-control">ml
-      </div>
-
-      <div class="d-flex">
-        <label for="kakuteruAlcoholDegree" class="form-label">できあがりのアルコール度数</label>
-        <span v-if="kakuteru">{{ kakuteru.kakuteruAlcoholDegree }}</span>
-        <input v-else v-model="formData.kakuteruAlcoholDegree" id="total" type="number" class="form-control">%
-      </div> -->
-
-      <button v-if="kakuteru" @click="back" type="button" class="btn btn-info">もどるん</button>
-      <button v-else type="submit" class="btn btn-info">カクテルつくるん</button>
-      <button @click="reset" type="button" class="btn btn-info">最初から</button>
     </form>
   </div>
 
-  <script>
-    const { createApp } = Vue;
-    const fields = Vue.ref([
-      {
-        name: 'spiritsAlcoholDegree',
-        label: '使うお酒のアルコール度数',
-        unit: '%',
-        required: true,
-      },
-      {
-        name: 'kakuteruAlcoholDegree',
-        label: 'できあがりのアルコール度数',
-        unit: '%',
-        required: false,
-      },
-      {
-        name: 'total',
-        label: '総量',
-        unit: 'g',
-        required: false,
-      },
-      {
-        name: 'spirits',
-        label: '使うお酒',
-        unit: 'g',
-        required: false,
-      },
-
-      {
-        name: 'splitting',
-        label: '割り材',
-        unit: 'g',
-        required: false,
-      },
-    ])
-
-    const formData = {
-      total: '',
-      kakuteruAlcoholDegree: '',
-      spirits: '',
-      spiritsAlcoholDegree: 25,
-      splitting: ''
-    }
-    const kakuteru = null
-
-    createApp({
-      data() {
-        return {
-          fields: fields,
-          formData: formData,
-          kakuteru: kakuteru,
-        }
-      },
-      // watch: {
-      //   'formData.spirits'(spirits) {
-      //     // Trigger reactivity for name field disabling when email changes
-      //     this.formData.total = this.formData.total;
-      //     this.formData.splitting = this.formData.splitting // no-op to trigger reactivity
-      //   }
-      // },
-      methods: {
-        handleSubmit() {
-          // 総量とできあがりの度数から求める
-          if (formData.total !== '' && formData.kakuteruAlcoholDegree !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const total = this.formData.total
-            const kakuteruAlcoholDegree = this.formData.kakuteruAlcoholDegree
-
-            const alcohol = total * kakuteruAlcoholDegree / 100
-            const spirits = alcohol * 100 / spiritsAlcoholDegree
-            const splitting = total - spirits
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-
-            // 総量と使うお酒から求める
-          } else if (formData.total !== '' && formData.spirits !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const total = this.formData.total
-            const spirits = this.formData.spirits
-            const splitting = total - spirits
-
-            const alcohol = spirits * spiritsAlcoholDegree / 100
-            const kakuteruAlcoholDegree = alcohol / total * 100
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-
-            // 総量と割り材から求める
-          } else if (formData.total !== '' && formData.splitting !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const total = this.formData.total
-            const splitting = this.formData.splitting
-            const spirits = total - splitting
-
-            const alcohol = spirits * spiritsAlcoholDegree / 100
-            const kakuteruAlcoholDegree = alcohol / total * 100
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-
-            // 出来上がり度数と使うお酒から求める
-          } else if (formData.kakuteruAlcoholDegree !== '' && formData.spirits !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const kakuteruAlcoholDegree = this.formData.kakuteruAlcoholDegree
-            const spirits = this.formData.spirits
-
-            const alcohol = spirits * spiritsAlcoholDegree / 100
-            const total = alcohol / kakuteruAlcoholDegree * 100
-            const splitting = total - spirits
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-
-            // 出来上がり度数と使う割り材から求める
-          } else if (formData.kakuteruAlcoholDegree !== '' && formData.splitting !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const kakuteruAlcoholDegree = this.formData.kakuteruAlcoholDegree
-            const splitting = this.formData.splitting
-
-            const spirits = kakuteruAlcoholDegree / spiritsAlcoholDegree * 100
-            const total = splitting + spirits
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-
-            // 使うお酒と割り材から求める
-          } else if (formData.spirits !== '' && formData.splitting !== '') {
-            const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
-            const spirits = this.formData.spirits
-            const splitting = this.formData.splitting
-
-            const total = spirits + splitting
-            const kakuteruAlcoholDegree = (spirits * spiritsAlcoholDegree / 100) / total * 100
-
-            this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
-          }
-        },
-        back() {
-          this.kakuteru = null;
-        },
-        reset() {
-          location.reload()
-        },
-        isDisabled(fieldName) {
-          switch (fieldName) {
-            case 'total':
-              return (formData.splitting !== '' && formData.spirits !== '')
-                || (formData.splitting !== '' && formData.kakuteruAlcoholDegree !== '')
-                || (formData.spirits !== '' && formData.kakuteruAlcoholDegree !== '')
-            case 'spirits':
-              return formData.total !== ''
-                && (formData.splitting !== '' || formData.kakuteruAlcoholDegree !== '')
-                || (formData.splitting !== '' && formData.kakuteruAlcoholDegree !== '')
-            case 'splitting':
-              return formData.total !== ''
-                && (formData.spirits !== '' || formData.kakuteruAlcoholDegree !== '')
-                || (formData.spirits !== '' && formData.kakuteruAlcoholDegree !== '')
-            case 'kakuteruAlcoholDegree':
-              return (formData.splitting !== '' && formData.spirits !== '')
-                || (formData.total !== '' && formData.splitting !== '')
-                || (formData.total !== '' && formData.spirits !== '')
-          }
-        }
-      }
-    }).mount('#app');
-
-
-  </script>
+  <script src="script.js"></script>
   <script>
     // service workerの登録関係
     if ('serviceWorker' in navigator) {
