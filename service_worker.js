@@ -1,8 +1,11 @@
 
 // キャッシュファイルの指定
-var CACHE_NAME = 'pwa-sample-caches';
+var CACHE_NAME = 'kakuterun-caches';
 var urlsToCache = [
-  '/ruru8.github.io/',
+  './',
+  './main.css',
+  './icon.png',
+  './main.js'
 ];
 
 // インストール処理
