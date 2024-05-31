@@ -1,11 +1,11 @@
 
 // キャッシュファイルの指定
-var CACHE_NAME = 'kakuterun-caches';
+var CACHE_NAME = 'kakuterun-caches-v1';
 var urlsToCache = [
-  './',
-  './main.css',
-  './icon.png',
-  './main.js'
+  // './',
+  // './main.css',
+  // './icon.png',
+  // './main.js'
 ];
 
 // インストール処理
