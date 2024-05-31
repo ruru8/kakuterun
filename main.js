@@ -107,13 +107,13 @@ createApp({
 
         this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
 
-        // 出来上がり度数と使う割り材から求める
+        // 出来上がり度数と割り材から求める
       } else if (formData.kakuteruAlcoholDegree !== '' && formData.splitting !== '') {
         const spiritsAlcoholDegree = this.formData.spiritsAlcoholDegree
         const kakuteruAlcoholDegree = this.formData.kakuteruAlcoholDegree
         const splitting = this.formData.splitting
 
-        const spirits = kakuteruAlcoholDegree / spiritsAlcoholDegree * 100
+        const spirits = kakuteruAlcoholDegree * splitting / (spiritsAlcoholDegree - kakuteruAlcoholDegree)
         const total = splitting + spirits
 
         this.kakuteru = { total, kakuteruAlcoholDegree, spirits, spiritsAlcoholDegree, splitting }
